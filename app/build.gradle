@@ -23,12 +23,12 @@ android {
         }
     }
 
-    productFlavors{
-        paid{
+    productFlavors {
+        paid {
             applicationId "com.udacity.gradle.builditbigger.paid"
             dimension "flavor"
         }
-        free{
+        free {
             applicationId "com.udacity.gradle.builditbigger.free"
             dimension "flavor"
         }
@@ -42,9 +42,38 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.google.android.gms:play-services-ads:11.6.2'
+    compile 'com.google.android.gms:play-services:11.6.2'
     compile project(path: ':JokeSourceLibrary')
     compile project(path: ':jokedisplay')
-    compile 'com.google.api-client:google-api-client:1.23.0'
-    compile 'com.google.http-client:google-http-client-android:1.23.0'
+    compile('com.google.api-client:google-api-client:1.23.0') {
+        // Exclude artifacts that the Android SDK/Runtime provides.
+        exclude(group: 'xpp3', module: 'xpp3')
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+        exclude(group: 'junit', module: 'junit')
+        exclude(group: 'com.google.android', module: 'android')
+    }
+
     compile project(path: ':backend', configuration: 'android-endpoints')
+
+
+    compile(group: 'com.google.api-client', name: 'google-api-client-android',
+            version: '1.23.0')
+            {
+                // Exclude play services, since we're not using this yet.
+                exclude(group: 'com.google.android.gms:play-services', module: 'google-play-services')
+            }
+
+    // END Google APIs
+
+
+    // The following client libraries make HTTP/JSON on Android easier.
+
+    // Android extensions for Google HTTP Client.
+    compile(group: 'com.google.http-client', name: 'google-http-client-android',
+            version: '1.23.0') {
+        exclude(group: 'com.google.android', module: 'android')
+    }
+
+
 }
+
