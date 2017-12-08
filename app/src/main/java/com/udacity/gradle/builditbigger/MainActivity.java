@@ -6,17 +6,25 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+
 import com.example.android.jokedisplay.JokeActivity;
 import com.example.android.jokesourcelibrary.JokeSource;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
-import java.io.IOException;
 import com.udacity.gradle.builditbigger.backend.myApi.MyApi;
+
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -25,11 +33,25 @@ public class MainActivity extends AppCompatActivity {
 
     private Intent jokeIntent;
 
+    private InterstitialAd mInterstitialAd;
+
+    private AdRequest mAdRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mAdRequest = new AdRequest.Builder()
+               .build();
+
+       mInterstitialAd.loadAd(mAdRequest);
+
+       Log.i("Interstitial", String.valueOf(mInterstitialAd.isLoaded()));
 
     }
 
@@ -58,13 +80,52 @@ public class MainActivity extends AppCompatActivity {
 
     public void tellJoke(View view) {
 
-        new JokeAsyncTask().execute();
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Log.d("MainActivity", "The interstitial wasn't loaded yet.");
+        }
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when the ad is displayed.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when when the interstitial ad is closed.
+                new JokeAsyncTask().execute();
+
+                mInterstitialAd.loadAd(mAdRequest);
+
+            }
+        });
+
+
     }
 
     public void setJoke(String joke) {
 
         mJoke = joke;
     }
+
+
 
     public class JokeAsyncTask extends AsyncTask<Void, Void, String> {
         private MyApi myApiService = null;
@@ -73,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
 
         private JokeSource mJokeSource = new JokeSource();
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
 
         @Override
         protected String doInBackground(Void... params) {
