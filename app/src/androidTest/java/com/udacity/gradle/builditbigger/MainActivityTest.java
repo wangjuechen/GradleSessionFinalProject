@@ -1,4 +1,4 @@
-package com.udacity.gradle.builditbigger;
+package com.udacity.gradle.builditbigger.paid;
 
 
 import android.support.test.espresso.ViewInteraction;
@@ -8,6 +8,9 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import com.udacity.gradle.builditbigger.R;
+import com.udacity.gradle.builditbigger.free.MainActivity;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
